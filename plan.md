@@ -1,47 +1,47 @@
 # OIF V1
 
 ## Requirements
-1. [] Active liquidity
-    1. [] Daily stablecoin LP revenue (Mainnet)
-        - [] Balancer
-            - [] OHM/DAI/ETH (0xc45d42f801105e861e86658648e3678ad7aa70f9)
-        - [] Sushi
-            - [] OHM/LUSD (0x46e4d8a1322b9448905225e52f914094dbd6dddf)
-            - [] OHM/DAI (0x055475920a8c93cffb64d039a8205f7acc7722d3)
-        - [] Curve
-            - [] FRAX/3pool (0xd632f22692fac7611d2aa1c0d552930d43caed3b)
+1. [ ] Active liquidity
+    1. [ ] Daily stablecoin LP revenue (Mainnet)
+        - [ ] Balancer
+            - [ ] OHM/DAI/ETH (0xc45d42f801105e861e86658648e3678ad7aa70f9)
+        - [ ] Sushi
+            - [ ] OHM/LUSD (0x46e4d8a1322b9448905225e52f914094dbd6dddf)
+            - [ ] OHM/DAI (0x055475920a8c93cffb64d039a8205f7acc7722d3)
+        - [ ] Curve
+            - [ ] FRAX/3pool (0xd632f22692fac7611d2aa1c0d552930d43caed3b)
 
-    2. [] Daily farming stablecoin revenue (Mainnet)
-        - [] Aave
-            - [] aDAI (0x028171bca77440897b824ca71d1c56cac55b68a3)
-            - [] Allocator V1 (0x0e1177e47151be72e5992e0975000e73ab5fd9d4)
-            - [] Allocator V2 (0x0d33c811d0fcc711bcb388dfb3a152de445be66f)
-        - [] Convex
-            - [] cvxCRV ()
-            - [] Allocator V1 (0xdfc95aaf0a107daae2b350458ded4b7906e7f728)
-            - [] Allocator V2 (0x2d643df5de4e9ba063760d475beaa62821c71681)
-        - [] Frax
-            - [] Allocator (0xde7b85f52577b113181921a7aa8fc0c22e309475)
-        - [] Liquity
-            - [] Allocator (0x97b3Ef4C558Ec456D59Cb95c65BFB79046E31fCA)
-            - [] Stability pool ()
-        - [] Rari
-            - [] Allocator (0x061C8610A784b8A1599De5B1157631e35180d818)
-2. [] OHM Productivity
-    1. [] Total OHM liquidity on DEXs (Mainnet)
-        - [] Sushi
-        - [] Balancer
-        - [] Uniswap V2
-        - [] Uniswap V3
-    2. [] Total OHM volume on DEXs (Mainnet)
-        - [] Sushi
-        - [] Balancer
-        - [] Uniswap V2
-        - [] Uniswap V3
-3. [] OHM Network health
-    1. [] Wallets holding OHM (Self Custody)
-    2. [] Wallets holding OHM greater than two months
-    3. [] OHM holder diversity: GINI coefficient
+    2. [ ] Daily farming stablecoin revenue (Mainnet)
+        - [ ] Aave
+            - [ ] aDAI (0x028171bca77440897b824ca71d1c56cac55b68a3)
+            - [ ] Allocator V1 (0x0e1177e47151be72e5992e0975000e73ab5fd9d4)
+            - [ ] Allocator V2 (0x0d33c811d0fcc711bcb388dfb3a152de445be66f)
+        - [ ] Convex
+            - [ ] cvxCRV ()
+            - [ ] Allocator V1 (0xdfc95aaf0a107daae2b350458ded4b7906e7f728)
+            - [ ] Allocator V2 (0x2d643df5de4e9ba063760d475beaa62821c71681)
+        - [ ] Frax
+            - [ ] Allocator (0xde7b85f52577b113181921a7aa8fc0c22e309475)
+        - [ ] Liquity
+            - [ ] Allocator (0x97b3Ef4C558Ec456D59Cb95c65BFB79046E31fCA)
+            - [ ] Stability pool ()
+        - [ ] Rari
+            - [ ] Allocator (0x061C8610A784b8A1599De5B1157631e35180d818)
+2. [ ] OHM Productivity
+    1. [ ] Total OHM liquidity on DEXs (Mainnet)
+        - [ ] Sushi
+        - [ ] Balancer
+        - [ ] Uniswap V2
+        - [ ] Uniswap V3
+    2. [ ] Total OHM volume on DEXs (Mainnet)
+        - [ ] Sushi
+        - [ ] Balancer
+        - [ ] Uniswap V2
+        - [ ] Uniswap V3
+3. [ ] OHM Network health
+    1. [ ] Wallets holding OHM (Self Custody)
+    2. [ ] Wallets holding OHM greater than two months
+    3. [ ] OHM holder diversity: GINI coefficient
 
 ### 1.1 Daily stablecoin LP revenue (Mainnet)
 Given: 
