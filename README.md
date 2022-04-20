@@ -31,3 +31,9 @@ Run `pip install poetry`
 
 Step 2. Install dependencies<br>
 Run `poetry install`
+
+Step 3. Create a file called `api_keys.py` in the root directory with the following:
+```python
+ALCHEMY_API_KEY: str = 'YOUR_KEY'
+ETHERSCAN_API_KEY: str = 'YOUR_KEY'
+```
