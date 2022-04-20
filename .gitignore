@@ -1,0 +1,4 @@
+notes/
+*.json
+__pycache__/
+api_keys.py
