@@ -1,4 +1,7 @@
 from datetime import datetime
+import pandas as pd
+from typing import Optional
+
 from pycoingecko import CoinGeckoAPI
 from web3 import Web3
 from etherscan import Etherscan
@@ -97,7 +100,7 @@ uniswap_v2.Mint.datetime = datetime_sfield(uniswap_v2.Mint.timestamp)
 sushiswap.Mint.exchange = SyntheticField.constant('SUSHISWAP')
 sushiswap.Mint.datetime = datetime_sfield(sushiswap.Mint.timestamp)
 
-def get_univ2_deposits(address: str):
+def get_uniswap_v2_deposits(address: str):
   univ2_mints = uniswap_v2.Query.mints(
     orderBy=uniswap_v2.Mint.timestamp,
     orderDirecion='asc',
@@ -116,7 +119,7 @@ def get_univ2_deposits(address: str):
   ])
 
 
-def get_sushi_deposits(address: str):
+def get_sushiswap_deposits(address: str):
   sushi_mints = sushiswap.Query.mints(
     orderBy=sushiswap.Mint.timestamp,
     orderDirecion='asc',
@@ -134,3 +137,14 @@ def get_sushi_deposits(address: str):
     sushi_mints.amount1,
   ])
 
+def get_sushiswap_token_liquidity(token_address: str, block_number: Optional[int] = None) -> float:
+  if block_number is not None:
+    return sushiswap.Query.token(id=token_address, block={'number': block_number}).liquidity    
+  else:
+    return sushiswap.Query.token(id=token_address).liquidity
+
+def get_uniswap_v2_token_liquidity(token_address: str, block_number: Optional[int] = None) -> float:
+  if block_number is not None:
+    return uniswap_v2.Query.token(id=token_address, block={'number': block_number}).totalLiquidity    
+  else:
+    return uniswap_v2.Query.token(id=token_address).totalLiquidity

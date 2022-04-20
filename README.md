@@ -23,3 +23,11 @@ The OIF metric is comprised of three main categories:
 - How many OHM-focused protocols are incubated within the Olympus ecosystem?
 - What is the growth rate of Olympus-supported projects and ecosystems?
 - What is the monthly change in OHM distribution and diversity etc.?
+
+## Development
+### Installation
+Step 1. Install `poetry`<br>
+Run `pip install poetry`
+
+Step 2. Install dependencies<br>
+Run `poetry install`
