@@ -137,14 +137,19 @@ def get_sushiswap_deposits(address: str):
     sushi_mints.amount1,
   ])
 
-def get_sushiswap_token_liquidity(token_address: str, block_number: Optional[int] = None) -> float:
-  if block_number is not None:
-    return sushiswap.Query.token(id=token_address, block={'number': block_number}).liquidity    
-  else:
-    return sushiswap.Query.token(id=token_address).liquidity
 
 def get_uniswap_v2_token_liquidity(token_address: str, block_number: Optional[int] = None) -> float:
   if block_number is not None:
-    return uniswap_v2.Query.token(id=token_address, block={'number': block_number}).totalLiquidity    
+    fpath = uniswap_v2.Query.token(id=token_address, block={'number': block_number}).totalLiquidity
   else:
-    return uniswap_v2.Query.token(id=token_address).totalLiquidity
+    fpath = uniswap_v2.Query.token(id=token_address).totalLiquidity
+
+  return sg.query([fpath])
+
+def get_sushiswap_token_liquidity(token_address: str, block_number: Optional[int] = None) -> float:
+  if block_number is not None:
+    fpath = sushiswap.Query.token(id=token_address, block={'number': block_number}).liquidity    
+  else:
+    fpath = sushiswap.Query.token(id=token_address).liquidity
+
+  return sg.query([fpath])
