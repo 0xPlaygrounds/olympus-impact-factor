@@ -73,6 +73,7 @@ sg = Subgrounds()
 uniswap_v2 = sg.load_subgraph('https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v2')
 uniswap_v3 = sg.load_subgraph('https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3')
 sushiswap = sg.load_subgraph('https://api.thegraph.com/subgraphs/name/sushiswap/exchange')
+balancer_v2 = sg.load_subgraph('https://api.thegraph.com/subgraphs/name/balancer-labs/balancer-v2')
 
 def datetime_sfield(timestamp_field: FieldPath | SyntheticField) -> SyntheticField:
   return SyntheticField(
@@ -138,7 +139,7 @@ def get_sushiswap_deposits(address: str):
   ])
 
 
-def get_uniswap_v2_token_liquidity(token_address: str, block_number: Optional[int] = None) -> float:
+def get_uniswap_v2_token_total_liquidity(token_address: str, block_number: Optional[int] = None) -> float:
   if block_number is not None:
     fpath = uniswap_v2.Query.token(id=token_address, block={'number': block_number}).totalLiquidity
   else:
@@ -146,10 +147,26 @@ def get_uniswap_v2_token_liquidity(token_address: str, block_number: Optional[in
 
   return sg.query([fpath])
 
-def get_sushiswap_token_liquidity(token_address: str, block_number: Optional[int] = None) -> float:
+def get_uniswap_v3_token_total_liquidity(token_address: str, block_number: Optional[int] = None) -> float:
+  if block_number is not None:
+    fpath = sushiswap.Query.token(id=token_address, block={'number': block_number}).totalValueLocked    
+  else:
+    fpath = sushiswap.Query.token(id=token_address).totalValueLocked
+
+  return sg.query([fpath])
+
+def get_sushiswap_token_total_liquidity(token_address: str, block_number: Optional[int] = None) -> float:
   if block_number is not None:
     fpath = sushiswap.Query.token(id=token_address, block={'number': block_number}).liquidity    
   else:
     fpath = sushiswap.Query.token(id=token_address).liquidity
+
+  return sg.query([fpath])
+
+def get_balancer_v2_token_total_liquidity(token_address: str, block_number: Optional[int] = None) -> float:
+  if block_number is not None:
+    fpath = balancer_v2.Query.token(id=token_address, block={'number': block_number}).totalBalanceNotional    
+  else:
+    fpath = balancer_v2.Query.token(id=token_address).totalBalanceNotional
 
   return sg.query([fpath])
