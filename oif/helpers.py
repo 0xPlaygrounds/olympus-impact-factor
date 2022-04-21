@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 import pandas as pd
 from typing import Optional
 
@@ -52,6 +52,7 @@ def get_token_transfers(token_address: str, startblock: int, endblock: int) -> l
     to='0x' + log['topics'][2].hex()[26:]
   ) for log in data]
 
+
 # ================================================================
 # Etherscan
 # ================================================================
@@ -63,6 +64,48 @@ etherscan = Etherscan(ETHERSCAN_API_KEY)
 # ================================================================
 cg = CoinGeckoAPI()
 
+def get_price_token_id(coin_id: str, time: int | str | datetime | date, currency: str = 'usd') -> float:
+  """ Returns the price of coin with id :attr:`coin_id` at time :attr:`time`. If :attr:`time` is a string,
+  it is assumed to be in the required coingecko format (i.e.: DD-MM-YYYY). If it is an integer, then the
+  time is assumed to be a unix timestamp.
+
+  Args:
+    coin_id (str): Coingecko coin id
+    time (int | str | datetime | date): Time at which to get the price
+    currency (str, optional): Currency of the price value. Defaults to 'usd'.
+
+  Returns:
+    float: Coin price
+  """
+  match time:
+    case int() as timestamp:
+      date_ = date.fromtimestamp(timestamp)
+      date_str = f'{date_.day:02}-{date_.month:02}-{date_.year}'
+    
+    case date() | datetime() as date_:
+      date_str = f'{date_.day:02}-{date_.month:02}-{date_.year}'
+
+    case str() as date_:
+      date_str = date_
+
+  data = cg.get_coin_history_by_id(id=coin_id, date=date_str)
+  return data['market_data']['current_price'][currency]
+
+def get_coin_id_of_address(address: str, network: str = 'ethereum') -> str:
+  try:
+    data = cg.get_coin_info_from_contract_address_by_id(id=network, contract_address=address)
+    return data['id']
+  except KeyError:
+    raise Exception('token_of_address: {}'.format(data['error']))
+
+def get_price_token_address(
+  address: str,
+  time: int | str | datetime | date,
+  network: str = 'ethereum',
+  currency: str = 'usd'
+) -> float:
+  coin_id = get_coin_id_of_address(address, network)
+  return get_price_token_id(coin_id, time, currency)
 
 
 # ================================================================
@@ -149,9 +192,9 @@ def get_uniswap_v2_token_total_liquidity(token_address: str, block_number: Optio
 
 def get_uniswap_v3_token_total_liquidity(token_address: str, block_number: Optional[int] = None) -> float:
   if block_number is not None:
-    fpath = sushiswap.Query.token(id=token_address, block={'number': block_number}).totalValueLocked    
+    fpath = uniswap_v3.Query.token(id=token_address, block={'number': block_number}).totalValueLocked    
   else:
-    fpath = sushiswap.Query.token(id=token_address).totalValueLocked
+    fpath = uniswap_v3.Query.token(id=token_address).totalValueLocked
 
   return sg.query([fpath])
 
