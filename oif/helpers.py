@@ -52,6 +52,24 @@ def get_token_transfers(token_address: str, startblock: int, endblock: int) -> l
     to='0x' + log['topics'][2].hex()[26:]
   ) for log in data]
 
+def block_of_timestamp(target_timestamp: int) -> int:
+  avg_block_time = 15
+
+  block_number = web3.eth.get_block_number()
+  block = web3.eth.get_block(block_number)
+
+  while block['timestamp'] > target_timestamp:
+    decrease_blocks = int((block['timestamp'] - target_timestamp) / avg_block_time)
+
+    if (decrease_blocks < 1):
+      break
+    
+    block_number -= decrease_blocks
+    
+    block = web3.eth.get_block(block_number)
+
+  return block
+
 
 # ================================================================
 # Etherscan
