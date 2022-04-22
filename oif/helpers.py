@@ -1,12 +1,14 @@
 from datetime import datetime
 import pandas as pd
 from typing import Optional
+from functools import cache
 
 from pycoingecko import CoinGeckoAPI
 from web3 import Web3
 from etherscan import Etherscan
 from subgrounds.subgrounds import Subgrounds
 from subgrounds.subgraph import FieldPath, SyntheticField
+
 
 from oif.models import Transfer
 from api_keys import ALCHEMY_API_KEY, ETHERSCAN_API_KEY
@@ -18,6 +20,7 @@ web3 = Web3(Web3.HTTPProvider(f'https://eth-mainnet.alchemyapi.io/v2/{ALCHEMY_AP
 
 transfer_event_sighash = web3.keccak(text="Transfer(address,address,uint256)").hex()
 
+@cache
 def timestamp_of_block(block_number: int) -> int:
   return web3.eth.get_block(block_number)['timestamp']
 
