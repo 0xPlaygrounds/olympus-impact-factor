@@ -18,8 +18,7 @@ from oif.abi import erc20_abi
 # ================================================================
 # Alchemy
 # ================================================================
-# web3 = Web3(Web3.HTTPProvider(f'https://eth-mainnet.alchemyapi.io/v2/{ALCHEMY_API_KEY}'))
-web3 = Web3(Web3.HTTPProvider(f'http://10.0.0.13:8545'))
+web3 = Web3(Web3.HTTPProvider(f'https://eth-mainnet.alchemyapi.io/v2/{ALCHEMY_API_KEY}'))
 
 transfer_event_sighash = web3.keccak(text="Transfer(address,address,uint256)").hex()
 
