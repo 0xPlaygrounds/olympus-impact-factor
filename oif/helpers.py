@@ -1,9 +1,10 @@
 from datetime import date, datetime
 import pytz
-from typing import Optional, Tuple
+from typing import Any, Optional, Tuple
 from tracemalloc import start
 import pandas as pd
 from functools import cache
+import requests
 
 from pycoingecko import CoinGeckoAPI
 from web3 import Web3
@@ -19,7 +20,8 @@ from oif.abi import erc20_abi
 # ================================================================
 # Alchemy
 # ================================================================
-web3 = Web3(Web3.HTTPProvider(f'https://eth-mainnet.alchemyapi.io/v2/{ALCHEMY_API_KEY}'))
+ALCHEMY_URL = f'https://eth-mainnet.alchemyapi.io/v2/{ALCHEMY_API_KEY}'
+web3 = Web3(Web3.HTTPProvider(ALCHEMY_URL))
 
 transfer_event_sighash = web3.keccak(text="Transfer(address,address,uint256)").hex()
 
@@ -103,6 +105,79 @@ def get_erc20_token_balances(token_address: str, holder_address: str, block_inte
     amount=log['balance'],
     holder=log['holder']
   ) for log in data]
+
+def get_erc20_transfers_from(
+  wallet_addr: str,
+  token_addr: str | list[str],
+  startblock: int = 0,
+  endblock: Optional[int] = None
+) -> list[dict[str, Any]]:
+  req = {
+    "jsonrpc": "2.0",
+    "id": 0,
+    "method": "alchemy_getAssetTransfers",
+    "params": [
+      {
+        "fromBlock": str(hex(startblock)),
+        "toBlock": str(hex(endblock)) if endblock is not None else 'latest',
+        "fromAddress": wallet_addr,
+        "contractAddresses": [token_addr] if type(token_addr) == str else token_addr,
+        "excludeZeroValue": True,
+        "category": ["erc20"]
+      }
+    ]
+  }
+
+  resp = requests.post(ALCHEMY_URL, json=req).json()
+  try:
+    return resp['result']['transfers']
+  except KeyError:
+    raise Exception('{}: {}'.format(resp['error']['code'], resp['error']['message']))
+
+def get_erc20_transfers_to(
+  wallet_addr: str,
+  token_addr: str | list[str],
+  startblock: int = 0,
+  endblock: Optional[int] = None
+) -> list[dict[str, Any]]:
+  req = {
+    "jsonrpc": "2.0",
+    "id": 0,
+    "method": "alchemy_getAssetTransfers",
+    "params": [
+      {
+        "fromBlock": str(hex(startblock)),
+        "toBlock": str(hex(endblock)) if endblock is not None else 'latest',
+        "toAddress": wallet_addr,
+        "contractAddresses": [token_addr] if type(token_addr) == str else token_addr,
+        "excludeZeroValue": True,
+        "category": ["erc20"]
+      }
+    ]
+  }
+
+  resp = requests.post(ALCHEMY_URL, json=req).json()
+  try:
+    return resp['result']['transfers']
+  except KeyError:
+    raise Exception('{}: {}'.format(resp['error']['code'], resp['error']['message']))
+
+def get_erc20_transfers(
+  wallet_addr: str,
+  token_addr: str | list[str],
+  startblock: int,
+  endblock: int,
+):
+  transfers = (
+    get_erc20_transfers_from(wallet_addr, token_addr, startblock, endblock) +
+    get_erc20_transfers_to(wallet_addr, token_addr, startblock, endblock)
+  )
+
+  transfers.sort(key=lambda transfer: int(transfer['blockNum'], 16))
+
+  result_df = pd.DataFrame(transfers)
+  final_df = result_df[['blockNum','from','to','value','asset']]
+  return final_df
 
 # ================================================================
 # Etherscan
@@ -326,7 +401,12 @@ def get_month_start_end_timestamp(year: int, month: int) -> Tuple[int, int]:
     Tuple[int, int]: Unix timestamps of first and last seconds of the specified month
   """
   first_day = datetime(year, month, 1).replace(tzinfo=pytz.UTC)
-  first_day_next_month = datetime(year, month + 1 if month < 12 else 1, 1).replace(tzinfo=pytz.UTC)
+
+  (next_month, next_month_year) = (
+    month + 1 if month < 12 else 1,
+    year if month < 12 else year + 1
+  )
+  first_day_next_month = datetime(next_month_year, next_month, 1).replace(tzinfo=pytz.UTC)
 
   first_day.timestamp()
 

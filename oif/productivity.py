@@ -1,12 +1,15 @@
 from datetime import date
 import calendar
+from numpy import block
 import pandas as pd
 from typing import Callable, Optional
 
 from subgrounds.subgraph import SyntheticField
+from oif.constants import CONTRIBUTOR_ALLOCATOR
 
 from oif.helpers import (
   block_of_timestamp,
+  get_erc20_transfers_from,
   get_month_start_end_timestamp,
   get_price_token_address,
   get_subgraph_sync_block,
@@ -530,3 +533,52 @@ def token_volume_MoM(token_address: str, month: int, year: int):
     'USD_vol_MoM_change',
     'USD_vol_MoM_change_percent',
   ]]
+
+# ================================================================
+# OHM contributor allocation
+# ================================================================
+
+def contributor_allocation(month: int, year: int) -> float:
+  (start, end) = get_month_start_end_timestamp(year, month)
+  (start_block, end_block) = (
+    block_of_timestamp(start),
+    block_of_timestamp(end)
+  )
+
+  transfers = get_erc20_transfers_from(
+    CONTRIBUTOR_ALLOCATOR,
+    '0x0ab87046fBb341D058F17CBC4c1133F25a20a52f',
+    start_block,
+    end_block
+  )
+
+  if len(transfers) == 0:
+    return 0.0
+  else:
+    df = pd.DataFrame(transfers)
+
+    return df['value'].sum()
+
+
+def historical_contributor_allocation(
+  start_month: int,
+  start_year: int,
+  end_month: int,
+  end_year: int 
+) -> pd.DataFrame:
+  def month_year_generator():
+    (month, year) = (start_month, start_year)
+    while (month, year) != (end_month, end_year):
+      yield (month, year)
+
+      if month == 12:
+        month = 1
+        year += 1
+      else:
+        month += 1
+    
+    yield (month, year)
+
+  return pd.DataFrame([
+    {'month': f'{month_name_map[month]}-{year}', 'contributor_allocation': contributor_allocation(month, year)}
+  for (month, year) in month_year_generator()])
