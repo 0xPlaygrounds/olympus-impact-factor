@@ -1,4 +1,5 @@
 from datetime import datetime
+from tracemalloc import start
 import pandas as pd
 from typing import Optional
 from functools import cache
@@ -10,8 +11,9 @@ from subgrounds.subgrounds import Subgrounds
 from subgrounds.subgraph import FieldPath, SyntheticField
 
 
-from oif.models import Transfer
+from oif.models import Balance, Transfer
 from api_keys import ALCHEMY_API_KEY, ETHERSCAN_API_KEY
+from oif.abi import erc20_abi
 
 # ================================================================
 # Alchemy
@@ -53,6 +55,30 @@ def get_token_transfers(token_address: str, startblock: int, endblock: int) -> l
     amount=int(log['data'], 16),
     from_='0x' + log['topics'][1].hex()[26:],
     to='0x' + log['topics'][2].hex()[26:]
+  ) for log in data]
+
+def get_erc20_token_balances(token_address: str, holder_address: str, block_interval: int, startblock: int, endblock: int):
+  cursor = startblock
+  data = []
+  erc20_contract = web3.eth.contract(address=token_address, abi=erc20_abi)
+  decimals = erc20_contract.functions.decimals().call()
+
+  while cursor <= endblock:
+    new_balance = erc20_contract.functions.balanceOf(holder_address).call({}, cursor) / pow(10,decimals)
+    new_data = [{
+      'block_number': cursor,
+      'holder': holder_address,
+      'balance': new_balance
+    }]
+
+    data = data + new_data
+
+    cursor += block_interval
+  
+  return [Balance(
+    block_number=log['block_number'],
+    amount=log['balance'],
+    holder=log['holder']
   ) for log in data]
 
 # ================================================================
