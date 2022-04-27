@@ -4,16 +4,9 @@ import pandas as pd
 import requests
 from oif.models import Balance
 
-from web3 import Web3
-
-from oif.helpers import get_erc20_token_balances, get_token_transfers
+from oif.helpers import get_erc20_token_balances, get_token_transfers, get_erc20_transfers, web3
 from oif.constants import ADAI_ADDRESS, LIQUITY_STABILITY_POOL, LIQUITY_ALLOCATOR_V1
 from oif.abi import rari_abi, liquity_abi
-from api_keys import ALCHEMY_API_KEY
-
-
-ALCHEMY_URL = f'https://eth-mainnet.alchemyapi.io/v2/{ALCHEMY_API_KEY}'
-web3 = Web3(Web3.HTTPProvider(ALCHEMY_URL))
 
 # ================================================================
 # AAVE Token Transfers
@@ -42,68 +35,6 @@ def get_adai_balances(owner_addresses: list[str], start_block: int, end_block: i
 
     df = pd.DataFrame(balances)
     return df
-
-# ================================================================
-# Alchemy Extended API Calls
-# ================================================================
-
-def get_erc20_transfers_from(wallet_addr: str, token_addr: str | list[str], startblock: int = 0, endblock: int = 99999999):
-  req = {
-    "jsonrpc": "2.0",
-    "id": 0,
-    "method": "alchemy_getAssetTransfers",
-    "params": [
-      {
-        "fromBlock": str(hex(startblock)),
-        "toBlock": str(hex(endblock)),
-        "fromAddress": wallet_addr,
-        "contractAddresses": [token_addr] if type(token_addr) == str else token_addr,
-        "excludeZeroValue": True,
-        "category": ["erc20"]
-      }
-    ]
-  }
-
-  resp = requests.post(ALCHEMY_URL, json=req).json()
-  return resp['result']['transfers']
-
-def get_erc20_transfers_to(wallet_addr: str, token_addr: str | list[str], startblock: int = 0, endblock: int = 99999999):
-  req = {
-    "jsonrpc": "2.0",
-    "id": 0,
-    "method": "alchemy_getAssetTransfers",
-    "params": [
-      {
-        "fromBlock": str(hex(startblock)),
-        "toBlock": str(hex(endblock)),
-        "toAddress": wallet_addr,
-        "contractAddresses": [token_addr] if type(token_addr) == str else token_addr,
-        "excludeZeroValue": True,
-        "category": ["erc20"]
-      }
-    ]
-  }
-
-  resp = requests.post(ALCHEMY_URL, json=req).json()
-  return resp['result']['transfers']
-
-def get_erc20_transfers(
-  wallet_addr: str,
-  token_addr: str | list[str],
-  startblock: int,
-  endblock: int,
-  get_price: Callable = None
-):
-  transfers = (
-    get_erc20_transfers_from(wallet_addr, token_addr, startblock, endblock) +
-    get_erc20_transfers_to(wallet_addr, token_addr, startblock, endblock)
-  )
-
-  transfers.sort(key=lambda transfer: int(transfer['blockNum'], 16))
-
-  result_df = pd.DataFrame(transfers)
-  final_df = result_df[['blockNum','from','to','value','asset']]
-  return final_df
 
 # ================================================================
 # Rari Allocator
